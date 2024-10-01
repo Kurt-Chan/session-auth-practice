@@ -15,15 +15,6 @@ const Page = () => {
     const [error, setError] = useState(false);
     const [status, setStatus] = useState(200);
 
-    const fetchCSRFToken = async () => {
-        const res = await fetch('http://localhost:3000/csrf-token', {
-            method: 'GET',
-            credentials: 'include'  // Send cookies with the request
-        });
-        const data = await res.json();
-        localStorage.setItem('csrfToken', data.csrfToken);
-    };
-
     const fetchApi = async () => {
         try {
             const res = await fetch("http://localhost:3000/protected", {
@@ -74,7 +65,6 @@ const Page = () => {
 
     useEffect(() => {
         fetchApi()
-        // fetchCSRFToken();
     }, [])
 
     return (
