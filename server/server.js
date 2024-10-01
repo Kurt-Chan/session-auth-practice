@@ -83,8 +83,8 @@ const authenticateToken = (req, res, next) => {
 
 
 // API ============================================================
-app.get('/csrf-token', (req, res) => {
-    res.cookie('XSRF-TOKEN', req.csrfToken(), {
+app.get('/csrf-token', (req, res) => { // Generate a CSRF token
+    res.cookie('XSRF-TOKEN', req.csrfToken(), { // Sends token as a cookie
         httpOnly: false,
         secure: true,
         sameSite: 'Strict'
