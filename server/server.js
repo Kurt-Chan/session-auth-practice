@@ -78,6 +78,17 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Middleware to check user agent
+const userAgentCheck = (req, res, next) => {
+    const userAgent = req.headers['user-agent'];
+    const isBrowser = /Chrome|Firefox|Safari|Edge|Mozilla/i.test(userAgent);
+
+    if (!isBrowser) {
+        return res.status(403).json({ message: 'Access forbidden: non-browser requests are not allowed.' });
+    }
+    next();
+};
+
 // MIDDLEWARES =======================================================
 
 
@@ -93,7 +104,7 @@ app.get('/csrf-token', (req, res) => { // Generate a CSRF token
 });
 
 // Login route to generate JWT and set fingerprint
-app.post('/login', csrfProtection, (req, res) => {
+app.post('/login', csrfProtection, userAgentCheck, (req, res) => {
     const { username, password } = req.body;
 
     // Mock data from the database
