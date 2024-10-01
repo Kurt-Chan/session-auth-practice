@@ -5,11 +5,13 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors')
 const csrf = require('csurf');
 const csrfProtection = csrf({ cookie: true });
+
 const app = express();
 
 // MIDDLEWARES ======================================================
-// Middleware to apply csrf protection
-app.use(csrfProtection);
+// Middleware to parse JSON bodies and Cookies
+app.use(express.json());
+app.use(cookieParser());
 
 // Middleware to apply CORS
 const corsOptions = {
@@ -18,9 +20,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Middleware to parse JSON bodies and Cookies
-app.use(express.json());
-app.use(cookieParser());
+// Middleware to apply csrf protection
+app.use(csrfProtection);
 
 // Middleware to parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.urlencoded({ extended: true }));
