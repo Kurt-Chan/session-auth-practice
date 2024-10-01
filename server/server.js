@@ -104,7 +104,7 @@ app.get('/csrf-token', (req, res) => { // Generate a CSRF token
 });
 
 // Login route to generate JWT and set fingerprint
-app.post('/login', csrfProtection, userAgentCheck, (req, res) => {
+app.post('/login', csrfProtection, (req, res) => {
     const { username, password } = req.body;
 
     // Mock data from the database
