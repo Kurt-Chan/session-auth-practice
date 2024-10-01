@@ -5,27 +5,28 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors')
 const csrf = require('csurf');
 const csrfProtection = csrf({ cookie: true });
-
-
-
 const app = express();
 
-
 // MIDDLEWARES ======================================================
-app.use(cookieParser());
+// Middleware to apply csrf protection
+app.use(csrfProtection);
+
+// Middleware to apply CORS
 const corsOptions = {
     origin: 'http://localhost:5173',  // Your React app's URL
     credentials: true  // Allow credentials (cookies, authorization headers)
 };
-app.use(csrfProtection);
 app.use(cors(corsOptions));
-// Middleware to parse JSON bodies
+
+// Middleware to parse JSON bodies and Cookies
 app.use(express.json());
+app.use(cookieParser());
+
 // Middleware to parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.urlencoded({ extended: true }));
 
 const keyHMAC = crypto.randomBytes(64);  // HMAC key for JWT signing
-const secureRandom = crypto.randomBytes; // For random user fingerprint
+// const secureRandom = crypto.randomBytes; // For random user fingerprint
 
 // Utility to generate a secure random string
 const generateRandomFingerprint = () => {
@@ -79,15 +80,15 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Middleware to check user agent
-const userAgentCheck = (req, res, next) => {
-    const userAgent = req.headers['user-agent'];
-    const isBrowser = /Chrome|Firefox|Safari|Edge|Mozilla/i.test(userAgent);
+// const userAgentCheck = (req, res, next) => {
+//     const userAgent = req.headers['user-agent'];
+//     const isBrowser = /Chrome|Firefox|Safari|Edge|Mozilla/i.test(userAgent);
 
-    if (!isBrowser) {
-        return res.status(403).json({ message: 'Access forbidden: non-browser requests are not allowed.' });
-    }
-    next();
-};
+//     if (!isBrowser) {
+//         return res.status(403).json({ message: 'Access forbidden: non-browser requests are not allowed.' });
+//     }
+//     next();
+// };
 
 // MIDDLEWARES =======================================================
 
