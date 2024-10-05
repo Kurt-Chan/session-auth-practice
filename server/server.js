@@ -95,21 +95,26 @@ const authenticateToken = (req, res, next) => {
 
 
 
-// Initialization
+// Initialization of middleware
 const { generateToken, doubleCsrfProtection } = doubleCsrf({
-    getSecret: () => 'Secret',
-    cookieName: '__Secure-Csrf-Token', // double checked, exist and is coming in the requests
+    getSecret: () => 'Secret', // must have secret key
+    cookieName: 'cookie_name', // Default: "__Host-psifi.x-csrf-token" use __Host- or __Secure- in prod
     cookieOptions: {
-        secure: true, // will be process.env.NODE_ENV === 'production'
+        secure: false, // will be process.env.NODE_ENV === 'production'
         httpOnly: true,
         sameSite: 'lax',
-        maxAge: 15 * 60 * 1000 // Cookie expiration (15 minutes)
+        // maxAge: 15 * 60 * 10//00 // Cookie expiration (15 minutes)
     },
-    getTokenFromRequest: (req) => req.headers['x-csrf-token'],
+    errorConfig: {
+        statusCode: 419,
+        message: "Session Expired",
+        code: "ERSESNEXPD"
+    },
+    getTokenFromRequest: (req) => req.headers['x-csrf-token'], // will fetch the x-csrf-token for verification
 })
 
 app.get('/test', doubleCsrfProtection, (req, res) => {
-    const token = generateToken(req, res, true)
+    const token = generateToken(req, res)
     res.status(200).json({
         csrfToken: token,
     })
@@ -118,6 +123,7 @@ app.get('/test', doubleCsrfProtection, (req, res) => {
 app.post('/user', doubleCsrfProtection, (req, res) => {
     const username = req.body.username
     const password = req.body.password
+
     res.status(200).json({
         username: username,
         password: password
