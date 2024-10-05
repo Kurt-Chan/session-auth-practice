@@ -41,11 +41,11 @@ function App() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values)
     try {
-      const res = await fetch("http://localhost:3000/login", {
+      const res = await fetch("http://localhost:3000/user", {
         method: 'POST', // Specify the HTTP method
         headers: {
           'Content-Type': 'application/json', // Set content type
-          'CSRF-Token': csrfToken
+          'x-csrf-token': csrfToken
         },
         credentials: 'include', // Include cookies in the request
         body: JSON.stringify(values), // Send the form data as JSON
@@ -63,7 +63,7 @@ function App() {
 
   useEffect(() => {
     const fetchCSRFToken = async () => {
-      const res = await fetch('http://localhost:3000/csrf-token', {
+      const res = await fetch('http://localhost:3000/test', {
         method: 'GET',
         credentials: 'include'  // Send cookies with the request
       });

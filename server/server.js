@@ -6,6 +6,8 @@ const cors = require('cors')
 const csrf = require('csurf');
 const csrfProtection = csrf({ cookie: true });
 
+const { doubleCsrf } = require("csrf-csrf");
+
 const app = express();
 
 // MIDDLEWARES ======================================================
@@ -21,7 +23,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Middleware to apply csrf protection
-app.use(csrfProtection);
+// app.use(csrfProtection);
 
 // Middleware to parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.urlencoded({ extended: true }));
@@ -90,6 +92,38 @@ const authenticateToken = (req, res, next) => {
 //     }
 //     next();
 // };
+
+
+
+// Initialization
+const { generateToken, doubleCsrfProtection } = doubleCsrf({
+    getSecret: () => 'Secret',
+    cookieName: '__Secure-Csrf-Token', // double checked, exist and is coming in the requests
+    cookieOptions: {
+        secure: true, // will be process.env.NODE_ENV === 'production'
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000 // Cookie expiration (15 minutes)
+    },
+    getTokenFromRequest: (req) => req.headers['x-csrf-token'],
+})
+
+app.get('/test', doubleCsrfProtection, (req, res) => {
+    const token = generateToken(req, res, true)
+    res.status(200).json({
+        csrfToken: token,
+    })
+});
+
+app.post('/user', doubleCsrfProtection, (req, res) => {
+    const username = req.body.username
+    const password = req.body.password
+    res.status(200).json({
+        username: username,
+        password: password
+    })
+
+})
 
 // MIDDLEWARES =======================================================
 
