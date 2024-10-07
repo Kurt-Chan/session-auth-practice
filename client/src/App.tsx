@@ -51,6 +51,7 @@ function App() {
         body: JSON.stringify(values), // Send the form data as JSON
       });
       if (!res.ok) {
+        window.location.reload();
         throw new Error(`Response status: ${res.status}`)
       }
       const result = await res.json();

@@ -13,7 +13,7 @@ const app = express();
 // MIDDLEWARES ======================================================
 // Middleware to parse JSON bodies and Cookies
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser('d835991b7a95f212de698308ed004df0edd2e1b3f729312429775b3d57b35475a06ac2fec5e78030d7b46b41f4641b8a'));
 
 // Middleware to apply CORS
 const corsOptions = {
@@ -97,23 +97,25 @@ const authenticateToken = (req, res, next) => {
 
 // Initialization of middleware
 const { generateToken, doubleCsrfProtection } = doubleCsrf({
-    getSecret: () => 'Secret', // must have secret key
-    cookieName: 'cookie_name', // Default: "__Host-psifi.x-csrf-token" use __Host- or __Secure- in prod
+    getSecret: () => 'd835991b7a95f212de698308ed004df0edd2e1b3f729312429775b3d57b35475a06ac2fec5e78030d7b46b41f4641b8a', // must have secret key
+    cookieName: 'Secure-shrtlr.XSRF-Token', // Default: "__Host-psifi.x-csrf-token" use __Host- or __Secure- in prod
     cookieOptions: {
         secure: false, // will be process.env.NODE_ENV === 'production'
         httpOnly: true,
-        sameSite: 'lax',
-        // maxAge: 15 * 60 * 10//00 // Cookie expiration (15 minutes)
+        sameSite: 'strict',
+        signed: true,
+        maxAge: 15 * 60 * 10//00 // Cookie expiration (15 minutes)
     },
     errorConfig: {
         statusCode: 419,
         message: "Session Expired",
         code: "ERSESNEXPD"
     },
+    // getSessionIdentifier: (req) => req.session.id['user1'],
     getTokenFromRequest: (req) => req.headers['x-csrf-token'], // will fetch the x-csrf-token for verification
 })
 
-app.get('/test', doubleCsrfProtection, (req, res) => {
+app.get('/test', (req, res) => {
     const token = generateToken(req, res)
     res.status(200).json({
         csrfToken: token,
